@@ -65,6 +65,17 @@ var HomePage = (function () {
             { lat: 10.024926, lng: 105.775028 },
             { lat: 10.032122, lng: 105.773738 }
         ];
+        this.contentString = '<div id="content">' +
+            '<div id="siteNotice">' +
+            '</div>' +
+            '<h1 id="firstHeading" class="firstHeading">Header</h1>' +
+            '<div id="bodyContent">' +
+            '<p>Content</p>' +
+            '<p>Website: <a href="https://www.google.com">' +
+            'Google</a></p>' +
+            '</div>' +
+            '</div>';
+        this.content = '<h1>Are you here?</h1>';
     }
     HomePage.prototype.ionViewCanEnter = function () {
         var _this = this;
@@ -99,20 +110,35 @@ var HomePage = (function () {
         this.addMarkerCluster();
     };
     HomePage.prototype.addMarker = function (lat, lng) {
+        var content = this.content;
         var marker = new google.maps.Marker({
             position: { lat: lat, lng: lng },
             map: this.map,
             label: '?',
             title: 'You are here?',
         });
+        var infowindow = new google.maps.InfoWindow({
+            content: content
+        });
+        marker.addListener('click', function () {
+            infowindow.open(this.map, marker);
+        });
     };
     HomePage.prototype.addMarkerCluster = function () {
         var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var contentString = this.contentString;
         var markers = this.locations.map(function (location, i) {
-            return new google.maps.Marker({
+            var marker = new google.maps.Marker({
                 position: location,
                 label: labels[i % labels.length],
             });
+            var infowindow = new google.maps.InfoWindow({
+                content: contentString
+            });
+            marker.addListener('click', function () {
+                infowindow.open(this.map, marker);
+            });
+            return marker;
         });
         var markerCluster = new MarkerClusterer(this.map, markers, { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
     };
@@ -122,7 +148,7 @@ var HomePage = (function () {
     ], HomePage.prototype, "mapElement", void 0);
     HomePage = __decorate([
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
-            selector: 'page-home',template:/*ion-inline-start:"/home/tam/DemoGoogleMap/src/pages/home/home.html"*/`<ion-header>\n  <ion-navbar text-center>\n    <ion-title>Demo Google Map</ion-title>\n    <ion-title>\n      <button ion-button (click)=\'setPosition($event)\'>My position</button>\n    </ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n  <div #map id=\'map\'></div>\n</ion-content>\n`/*ion-inline-end:"/home/tam/DemoGoogleMap/src/pages/home/home.html"*/
+            selector: 'page-home',template:/*ion-inline-start:"/home/tam/projects/DemoGoogleMap/src/pages/home/home.html"*/`<ion-header>\n  <ion-navbar text-center>\n    <ion-title>Demo Google Map</ion-title>\n    <ion-title>\n      <button ion-button (click)=\'setPosition($event)\'>My position</button>\n    </ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n  <div #map id=\'map\'></div>\n</ion-content>\n`/*ion-inline-end:"/home/tam/projects/DemoGoogleMap/src/pages/home/home.html"*/
         }),
         __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["d" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["d" /* NavController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__ionic_native_geolocation__["a" /* Geolocation */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__ionic_native_geolocation__["a" /* Geolocation */]) === "function" && _b || Object])
     ], HomePage);
@@ -245,7 +271,7 @@ var MyApp = (function () {
         });
     }
     MyApp = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({template:/*ion-inline-start:"/home/tam/DemoGoogleMap/src/app/app.html"*/`<ion-nav [root]="rootPage"></ion-nav>\n`/*ion-inline-end:"/home/tam/DemoGoogleMap/src/app/app.html"*/
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({template:/*ion-inline-start:"/home/tam/projects/DemoGoogleMap/src/app/app.html"*/`<ion-nav [root]="rootPage"></ion-nav>\n`/*ion-inline-end:"/home/tam/projects/DemoGoogleMap/src/app/app.html"*/
         }),
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["e" /* Platform */], __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__["a" /* StatusBar */], __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__["a" /* SplashScreen */]])
     ], MyApp);

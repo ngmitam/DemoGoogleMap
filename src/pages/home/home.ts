@@ -22,8 +22,19 @@ export class HomePage {
     { lat: 10.029859, lng: 105.772360 },
     { lat: 10.024926, lng: 105.775028 },
     { lat: 10.032122, lng: 105.773738 }
-  ]
+  ];
+  contentString = '<div id="content">' +
+  '<div id="siteNotice">' +
+  '</div>' +
+  '<h1 id="firstHeading" class="firstHeading">Header</h1>' +
+  '<div id="bodyContent">' +
+  '<p>Content</p>' +
+  '<p>Website: <a href="https://www.google.com">' +
+  'Google</a></p>' +
+  '</div>' +
+  '</div>';
 
+  content = '<h1>Are you here?</h1>';
   
   @ViewChild('map') mapElement;
   constructor(public navCtrl: NavController, public geo: Geolocation) {
@@ -67,22 +78,44 @@ export class HomePage {
   }
 
   addMarker(lat: any, lng: any) {
+    var content = this.content;
     var marker = new google.maps.Marker({
       position: { lat: lat, lng: lng },
       map: this.map,
       label: '?',
       title: 'You are here?',
     });
+
+    var infowindow = new google.maps.InfoWindow({
+      content: content
+    });
+
+    marker.addListener('click', function () {
+      infowindow.open(this.map, marker);
+    });
   }
-  
+
   addMarkerCluster() {
     let labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let contentString = this.contentString;
     var markers = this.locations.map(function (location, i) {
-      return new google.maps.Marker({
+      var marker =  new google.maps.Marker({
         position: location,
         label: labels[i % labels.length],
       });
+
+      var infowindow = new google.maps.InfoWindow({
+        content: contentString
+      });
+
+      marker.addListener('click', function () {
+        infowindow.open(this.map, marker);
+      });
+
+      return marker;
     });
+
+    
 
     var markerCluster = new MarkerClusterer(this.map, markers, { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
   }
