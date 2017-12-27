@@ -1,3 +1,4 @@
+import { HomePage } from './home';
 import { Component, ViewChild } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
@@ -63,7 +64,9 @@ export class HomePage {
   }
 
   loadMap(lat: any, lng: any) {
-    let latlng = new google.maps.LatLng(lat, lng);
+    var directionsService = new google.maps.DirectionsService;
+    var directionsDisplay = new google.maps.DirectionsRenderer;
+
     let mapOption = {
       zoom: 15,
       center: { lat: lat, lng: lng },
@@ -73,8 +76,10 @@ export class HomePage {
 
     this.map = new google.maps.Map(this.mapElement.nativeElement, mapOption);
     this.addMarker(lat, lng);
+    directionsDisplay.setMap(this.map);
 
-    this.addMarkerCluster();
+    this.addMarkerCluster(directionsService, directionsDisplay, lat, lng);
+
   }
 
   addMarker(lat: any, lng: any) {
@@ -95,28 +100,44 @@ export class HomePage {
     });
   }
 
-  addMarkerCluster() {
+  addMarkerCluster(directionsService, directionsDisplay, lat, lng) {
     let labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let contentString = this.contentString;
+    var position = { lat: lat, lng: lng };
     var markers = this.locations.map(function (location, i) {
       var marker =  new google.maps.Marker({
         position: location,
         label: labels[i % labels.length],
       });
-
-      var infowindow = new google.maps.InfoWindow({
-        content: contentString
-      });
-
+      
       marker.addListener('click', function () {
-        infowindow.open(this.map, marker);
+        var content = HomePage.prototype.calculateAndDisplayRoute(directionsService, directionsDisplay, position, location, marker);
       });
 
       return marker;
     });
 
-    
-
-    var markerCluster = new MarkerClusterer(this.map, markers, { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
+    var markerClusterer = new MarkerClusterer(this.map, markers, { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
   }
+
+  calculateAndDisplayRoute(directionsService, directionsDisplay, origin, destination, marker) {
+    directionsService.route({
+      origin: origin,
+      destination: destination,
+      optimizeWaypoints: true,
+      travelMode: 'DRIVING'
+    }, function (response, status) { 
+      if (status === 'OK') {
+        directionsDisplay.setDirections(response);
+        var route = response.routes[0];
+        var content = '<h1>From: ' + route.legs[0].start_address + '<br>To: ' + route.legs[0].end_address + '<br>Dis: ' + route.legs[0].distance.text +'</h1>';
+        var infowindow = new google.maps.InfoWindow({
+          content: content
+        });
+        infowindow.open(this.map, marker);
+      } else {
+        window.alert('Directions request failed due to ' + status);
+      }
+    });
+  }
+
 }

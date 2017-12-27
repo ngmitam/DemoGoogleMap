@@ -39,9 +39,10 @@ webpackEmptyAsyncContext.id = 151;
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return HomePage; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(54);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_native_geolocation__ = __webpack_require__(194);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__home__ = __webpack_require__(195);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ionic_native_geolocation__ = __webpack_require__(194);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -51,6 +52,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+
 
 
 
@@ -77,6 +79,7 @@ var HomePage = (function () {
             '</div>';
         this.content = '<h1>Are you here?</h1>';
     }
+    HomePage_1 = HomePage;
     HomePage.prototype.ionViewCanEnter = function () {
         var _this = this;
         this.geo.getCurrentPosition().then(function (val) {
@@ -99,7 +102,8 @@ var HomePage = (function () {
         }
     };
     HomePage.prototype.loadMap = function (lat, lng) {
-        var latlng = new google.maps.LatLng(lat, lng);
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
         var mapOption = {
             zoom: 15,
             center: { lat: lat, lng: lng },
@@ -107,7 +111,8 @@ var HomePage = (function () {
         };
         this.map = new google.maps.Map(this.mapElement.nativeElement, mapOption);
         this.addMarker(lat, lng);
-        this.addMarkerCluster();
+        directionsDisplay.setMap(this.map);
+        this.addMarkerCluster(directionsService, directionsDisplay, lat, lng);
     };
     HomePage.prototype.addMarker = function (lat, lng) {
         var content = this.content;
@@ -124,36 +129,54 @@ var HomePage = (function () {
             infowindow.open(this.map, marker);
         });
     };
-    HomePage.prototype.addMarkerCluster = function () {
+    HomePage.prototype.addMarkerCluster = function (directionsService, directionsDisplay, lat, lng) {
         var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        var contentString = this.contentString;
+        var position = { lat: lat, lng: lng };
         var markers = this.locations.map(function (location, i) {
             var marker = new google.maps.Marker({
                 position: location,
                 label: labels[i % labels.length],
             });
-            var infowindow = new google.maps.InfoWindow({
-                content: contentString
-            });
             marker.addListener('click', function () {
-                infowindow.open(this.map, marker);
+                var content = HomePage_1.prototype.calculateAndDisplayRoute(directionsService, directionsDisplay, position, location, marker);
             });
             return marker;
         });
-        var markerCluster = new MarkerClusterer(this.map, markers, { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
+        var markerClusterer = new MarkerClusterer(this.map, markers, { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
+    };
+    HomePage.prototype.calculateAndDisplayRoute = function (directionsService, directionsDisplay, origin, destination, marker) {
+        directionsService.route({
+            origin: origin,
+            destination: destination,
+            optimizeWaypoints: true,
+            travelMode: 'DRIVING'
+        }, function (response, status) {
+            if (status === 'OK') {
+                directionsDisplay.setDirections(response);
+                var route = response.routes[0];
+                var content = '<h1>From: ' + route.legs[0].start_address + '<br>To: ' + route.legs[0].end_address + '<br>Dis: ' + route.legs[0].distance.text + '</h1>';
+                var infowindow = new google.maps.InfoWindow({
+                    content: content
+                });
+                infowindow.open(this.map, marker);
+            }
+            else {
+                window.alert('Directions request failed due to ' + status);
+            }
+        });
     };
     __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_8" /* ViewChild */])('map'),
+        Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["_8" /* ViewChild */])('map'),
         __metadata("design:type", Object)
     ], HomePage.prototype, "mapElement", void 0);
-    HomePage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
+    HomePage = HomePage_1 = __decorate([
+        Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["m" /* Component */])({
             selector: 'page-home',template:/*ion-inline-start:"/home/tam/projects/DemoGoogleMap/src/pages/home/home.html"*/`<ion-header>\n  <ion-navbar text-center>\n    <ion-title>Demo Google Map</ion-title>\n    <ion-title>\n      <button ion-button (click)=\'setPosition($event)\'>My position</button>\n    </ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n  <div #map id=\'map\'></div>\n</ion-content>\n`/*ion-inline-end:"/home/tam/projects/DemoGoogleMap/src/pages/home/home.html"*/
         }),
-        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["d" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["d" /* NavController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__ionic_native_geolocation__["a" /* Geolocation */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__ionic_native_geolocation__["a" /* Geolocation */]) === "function" && _b || Object])
+        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["d" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["d" /* NavController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_3__ionic_native_geolocation__["a" /* Geolocation */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_3__ionic_native_geolocation__["a" /* Geolocation */]) === "function" && _b || Object])
     ], HomePage);
     return HomePage;
-    var _a, _b;
+    var HomePage_1, _a, _b;
 }());
 
 //# sourceMappingURL=home.js.map
